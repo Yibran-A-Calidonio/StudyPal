@@ -1,1 +1,1 @@
-# LemonBuddy
+# Study Buddy
