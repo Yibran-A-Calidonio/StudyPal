@@ -43,7 +43,7 @@ const StudyBuddyApp = () => {
                     setStudyTime(total => total + 1); // Increment local study time
                     return newTime;
                 });
-            }, 600); // 1-minute interval
+            }, 60000); // 1-minute interval
         } else {
             clearInterval(interval);
         }
