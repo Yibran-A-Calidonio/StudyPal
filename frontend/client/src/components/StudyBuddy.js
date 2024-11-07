@@ -1,6 +1,5 @@
 import React from 'react';
 
-// Import the study buddy images
 import level1Image from '../assets/study-buddy/level1.png';
 import level2Image from '../assets/study-buddy/level2.png';
 import level3Image from '../assets/study-buddy/level3.png';
@@ -21,21 +20,25 @@ const StudyBuddy = ({ studyTime, level }) => {
         // Add more levels as needed
     };
 
-    // Default to the highest available level if the level exceeds defined images
+    // Default to level 1 image if the level is not found
     const buddyImage = levelImages[level] || levelImages[Object.keys(levelImages).length];
+
+
+    // Calculate progress as a percentage toward the next level
+    const progressPercentage = (studyTime % 60) / 60 * 100;
 
     return (
         <div>
             <h2>Your Study Buddy</h2>
             <p>Level: {level}</p>
-            <p>Total Study Time: {studyTime} minutes</p>
+            
             <div style={{ width: '100%', height: '30px', backgroundColor: '#e0e0e0' }}>
                 <div
                     style={{
-                        width: `${(studyTime % 60) / 60 * 100}%`,
+                        width: `${progressPercentage}%`,
                         height: '100%',
                         backgroundColor: 'green',
-                        transition: 'width 0.5s ease', // Smooth transition for visual effect
+                        transition: 'width 0.5s ease',
                     }}
                 ></div>
             </div>
