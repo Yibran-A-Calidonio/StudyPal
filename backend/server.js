@@ -11,13 +11,13 @@ connectDB();
 
 // CORS configuration with credentials allowed
 app.use(cors({
-    origin: 'http://localhost:3000', // Specify your frontend URL
+    origin: 'https://yourwebstuddybuddy-frontend.onrender.com', // Specify your frontend URL
     credentials: true, // Allow cookies to be sent
 }));
 
 // Handle preflight `OPTIONS` requests for all routes
 app.options('*', cors({
-    origin: 'http://localhost:3000',
+    origin: 'https://yourwebstuddybuddy-frontend.onrender.com',
     credentials: true,
 }));
 
