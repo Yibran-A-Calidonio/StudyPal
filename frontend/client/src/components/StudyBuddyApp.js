@@ -1,67 +1,74 @@
 import React, { useState, useEffect } from 'react';
-import api from '../api'; // Axios instance for making HTTP requests
+import api from '../api'; // Axios instance for HTTP requests
 import level1Image from '../assets/study-buddy/level1.png';
 import level2Image from '../assets/study-buddy/level2.png';
 import level3Image from '../assets/study-buddy/level3.png';
 import level4Image from '../assets/study-buddy/level4.png';
 import level5Image from '../assets/study-buddy/level5.png';
 import level6Image from '../assets/study-buddy/level6.png';
-// Add more level images as needed
 
-const StudyBuddyApp = () => {
+const StudyBuddyApp = ({ user, onLogout }) => {
     const [isActive, setIsActive] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
-    const [studyTime, setStudyTime] = useState(0);
-    const [currentSessionTime, setCurrentSessionTime] = useState(0);
+    const [studyTime, setStudyTime] = useState(0); // Current session time in seconds
 
-    // Fetch initial study time from the backend when the component mounts
+    // Timer logic
     useEffect(() => {
-        const fetchInitialStudyTime = async () => {
-            try {
-                const response = await api.get('/status');
-                setStudyTime(response.data.studyTime || 0); // Set initial study time from the backend
-            } catch (error) {
-                console.error('Error fetching initial study time from backend:', error);
-            }
-        };
-        fetchInitialStudyTime();
-    }, []);
+        let interval = null;
+        if (isActive && !isPaused) {
+            interval = setInterval(() => {
+                setStudyTime((prevTime) => prevTime + 1); // Increment session time by 1 second
+            }, 100); // Run every second
+        } else {
+            clearInterval(interval);
+        }
 
-    // Ensure you're sending only the current session time when updating the backend
+        return () => clearInterval(interval);
+    }, [isActive, isPaused]);
+
+    // Log study time every minute
     useEffect(() => {
         let interval = null;
         if (isActive && !isPaused) {
             interval = setInterval(async () => {
                 try {
-                    await api.put('/update', { studyTime: 1 }); // Send 1 minute increment
+                    // Send study session data to the backend
+                    await api.post('/studybuddy/log-session', {
+                        userId: user.id,
+                        durationMinutes: 1, // Log 1 minute increment
+                        sessionDate: new Date().toISOString(), // Current timestamp
+                    });
                 } catch (error) {
-                    console.error('Error syncing study time with backend:', error);
+                    console.error('Error logging study time:', error);
                 }
-    
-                setCurrentSessionTime(prevTime => {
-                    const newTime = prevTime + 1;
-                    setStudyTime(total => total + 1); // Increment local study time
-                    return newTime;
-                });
-            }, 60000); // 1-minute interval
+            }, 60000); // Log every 1 minute
         } else {
             clearInterval(interval);
         }
-    
+
         return () => clearInterval(interval);
-    }, [isActive, isPaused]);
-    
-    
-    const handleStop = () => {
+    }, [isActive, isPaused, user]);
+
+    const handleStop = async () => {
         setIsActive(false);
         setIsPaused(false);
-    
-        // Don't send any additional requests to the backend when stopping; just reset the session time
-        setCurrentSessionTime(0); // Reset current session time for next session
+
+        if (studyTime > 0) {
+            try {
+                // Log the remaining session data to the backend
+                await api.post('/studybuddy/log-session', {
+                    userId: user.id,
+                    durationMinutes: Math.floor(studyTime / 60), // Convert seconds to minutes
+                    sessionDate: new Date().toISOString(),
+                });
+            } catch (error) {
+                console.error('Error logging session:', error);
+            }
+        }
+
+        setStudyTime(0); // Reset study time
     };
-    
-    
-    
+
     const handleStart = () => {
         setIsActive(true);
         setIsPaused(false);
@@ -75,8 +82,12 @@ const StudyBuddyApp = () => {
         setIsPaused(false);
     };
 
+    // Calculate minutes and seconds for display
+    const minutes = Math.floor(studyTime / 60);
+    const seconds = studyTime % 60;
 
-    const level = Math.floor(studyTime / 60) + 1; // Calculate level based on total study time
+    const level = Math.floor(studyTime / 3600) + 1; // 1 level per hour of study
+    const levelProgress = (studyTime % 3600) / 3600; // Progress toward the next level (0 to 1)
 
     // Map level to the corresponding image
     const levelImages = {
@@ -86,32 +97,34 @@ const StudyBuddyApp = () => {
         4: level4Image,
         5: level5Image,
         6: level6Image,
-        // Add more levels as needed
     };
     const buddyImage = levelImages[level] || levelImages[Object.keys(levelImages).length];
-
-    const progressPercentage = (studyTime % 60) / 60 * 100;
 
     return (
         <div>
             <h1>Study Buddy</h1>
-            <h2>Level: {level}</h2>
-            <div style={{ width: '100%', height: '30px', backgroundColor: '#e0e0e0' }}>
+            
+            {/* Progress Bar */}
+            <div style={{ width: '100%', height: '20px', backgroundColor: '#e0e0e0', marginBottom: '20px' }}>
                 <div
                     style={{
-                        width: `${progressPercentage}%`,
+                        width: `${levelProgress * 100}%`,
                         height: '100%',
                         backgroundColor: 'green',
                         transition: 'width 0.5s ease',
                     }}
                 ></div>
             </div>
-            <img
-                src={buddyImage}
-                alt={`Study Buddy Level ${level}`}
-                style={{ width: '200px', height: 'auto', marginTop: '20px' }}
-            />
-            <p>Current Session Time: {currentSessionTime} minutes</p>
+
+            <h2>Level: {level}</h2>
+            <div>
+                <img
+                    src={buddyImage}
+                    alt={`Study Buddy Level ${level}`}
+                    style={{ width: '200px', height: 'auto', marginTop: '20px' }}
+                />
+            </div>
+            <p>Current Session Time: {minutes} minutes and {seconds} seconds</p>
             <div>
                 {!isActive && <button onClick={handleStart}>Start Studying</button>}
                 {isActive && !isPaused && <button onClick={handlePause}>Pause</button>}

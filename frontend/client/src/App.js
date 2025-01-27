@@ -1,27 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import api from './api'; // Axios instance
-import StudyBuddyApp from './components/StudyBuddyApp'; // Import the combined component
+import Login from './components/Login';
+import Registration from './components/Registration';
+import StudyBuddyApp from './components/StudyBuddyApp';
+import Dashboard from './components/Dashboard';
+import './App.css'; // Import App-specific CSS
 
 function App() {
-    const [initialStudyTime, setInitialStudyTime] = useState(0);
+    const [user, setUser] = useState(null);
 
-    // Fetch initial study time from the backend on load
+    // Restore user data from localStorage on app load
     useEffect(() => {
-        const fetchStudyBuddy = async () => {
-            try {
-                const response = await api.get('/status');
-                setInitialStudyTime(response.data.studyTime || 0); // Set initial study time from the backend
-            } catch (error) {
-                console.error("Error fetching study buddy data:", error);
-            }
-        };
-        fetchStudyBuddy();
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            setUser(JSON.parse(storedUser)); // Parse and set the stored user
+        }
     }, []);
+
+    const handleLoginSuccess = (userData) => {
+        setUser(userData); // Set user state
+        localStorage.setItem('user', JSON.stringify(userData)); // Save user data in localStorage
+    };
+
+    const handleLogout = () => {
+        setUser(null); // Clear user state
+        localStorage.removeItem('user'); // Remove user data from localStorage
+    };
 
     return (
         <div className="App">
-            {/* Pass the initial study time as a prop to the combined component */}
-            <StudyBuddyApp initialStudyTime={initialStudyTime} />
+            <h1 className="app-title">Study Pal</h1>
+            {!user ? (
+                <div className="auth-page">
+                    <Login onLoginSuccess={handleLoginSuccess} />
+                    <Registration />
+                </div>
+            ) : (
+                <div>
+                    <Dashboard user={user} onLogout={handleLogout} />
+                    <StudyBuddyApp user={user} />
+                </div>
+            )}
         </div>
     );
 }

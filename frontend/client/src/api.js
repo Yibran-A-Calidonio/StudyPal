@@ -1,9 +1,8 @@
-// src/api.js
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'https://yourwebstuddybuddy-backend.onrender.com/', // Adjust based on your backend URL
-    withCredentials: true, // This will send cookies along with requests
+    baseURL: 'http://localhost:5251/api', // Use your backend's local development URL
+    withCredentials: false, // Set to true if your backend requires cookies (e.g., for sessions)
 });
 
 export default api;

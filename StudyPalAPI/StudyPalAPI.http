@@ -1,0 +1,6 @@
+@StudyPalAPI_HostAddress = http://localhost:5251
+
+GET {{StudyPalAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
