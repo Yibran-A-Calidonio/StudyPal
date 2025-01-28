@@ -13,5 +13,6 @@ namespace StudyPalAPI.Data
         // Define tables for your models
         public DbSet<User> Users { get; set; }
         public DbSet<StudySession> StudySessions { get; set; }
+
     }
 }

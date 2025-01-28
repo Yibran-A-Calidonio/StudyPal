@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using StudyPalAPI.Data;
 using StudyPalAPI.Models;
 using StudyPalAPI.Models.DTOs;
+using StudyPalAPI.Services;
 
 namespace StudyPalAPI.Controllers
 {
@@ -11,12 +12,13 @@ namespace StudyPalAPI.Controllers
     public class StudyBuddyController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly LeaderboardService _leaderboardService;
 
-        public StudyBuddyController(ApplicationDbContext context)
+        public StudyBuddyController(ApplicationDbContext context, LeaderboardService leaderboardService)
         {
             _context = context;
+            _leaderboardService = leaderboardService; // Inject LeaderboardService
         }
-
 
         [HttpPost("log-session")]
         public async Task<IActionResult> LogSession([FromBody] LogSessionDto dto)
@@ -42,22 +44,10 @@ namespace StudyPalAPI.Controllers
         }
 
         [HttpGet("leaderboard")]
-        public async Task<IActionResult> GetLeaderboard()
+        public IActionResult GetLeaderboard()
         {
-            var leaderboard = await _context.Users
-                .OrderByDescending(u => _context.StudySessions.Where(s => s.UserId == u.Id).Sum(s => s.DurationMinutes))
-                .Select(u => new
-                {
-                    u.Id,
-                    u.DisplayName,
-                    TotalStudyTime = _context.StudySessions.Where(s => s.UserId == u.Id).Sum(s => s.DurationMinutes)
-                })
-                .Take(10) // Limit to top 10 users
-                .ToListAsync();
-
+            var leaderboard = _leaderboardService.GetLeaderboard(); // Fetch real-time leaderboard
             return Ok(leaderboard);
         }
-
-
     }
 }
