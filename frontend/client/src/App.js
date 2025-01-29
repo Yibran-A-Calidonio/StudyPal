@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import * as signalR from '@microsoft/signalr';
 import Login from './components/Login';
 import Registration from './components/Registration';
 import StudyBuddyApp from './components/StudyBuddyApp';
@@ -7,23 +8,55 @@ import './App.css'; // Import App-specific CSS
 
 function App() {
     const [user, setUser] = useState(null);
+    const [connection, setConnection] = useState(null);
 
     // Restore user data from localStorage on app load
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
-            setUser(JSON.parse(storedUser)); // Parse and set the stored user
+            setUser(JSON.parse(storedUser));
         }
     }, []);
 
+    // ✅ Initialize WebSocket connection only ONCE
+    useEffect(() => {
+        if (connection) return; // ✅ Prevent re-creating connection
+
+        const newConnection = new signalR.HubConnectionBuilder()
+            .withUrl('http://localhost:5251/leaderboardHub', {
+                skipNegotiation: true, // ✅ Use WebSockets directly
+                transport: signalR.HttpTransportType.WebSockets
+            })
+            .withAutomaticReconnect()
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
+
+        newConnection.start()
+            .then(() => {
+                console.log("✅ Connected to SignalR Hub");
+                setConnection(newConnection);
+            })
+            .catch((err) => {
+                console.error('❌ Error connecting to SignalR:', err);
+            });
+
+        // ✅ Do NOT stop connection in cleanup function
+        return () => {
+            if (newConnection.state === signalR.HubConnectionState.Connected) {
+                console.log("🛑 Stopping SignalR connection...");
+                newConnection.stop();
+            }
+        };
+    }, []); // ✅ Empty dependency array ensures it runs only ONCE
+
     const handleLoginSuccess = (userData) => {
-        setUser(userData); // Set user state
-        localStorage.setItem('user', JSON.stringify(userData)); // Save user data in localStorage
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
     };
 
     const handleLogout = () => {
-        setUser(null); // Clear user state
-        localStorage.removeItem('user'); // Remove user data from localStorage
+        setUser(null);
+        localStorage.removeItem('user');
     };
 
     return (
@@ -36,7 +69,7 @@ function App() {
                 </div>
             ) : (
                 <div>
-                    <Dashboard user={user} onLogout={handleLogout} />
+                    <Dashboard user={user} onLogout={handleLogout} connection={connection} /> 
                     <StudyBuddyApp user={user} />
                 </div>
             )}

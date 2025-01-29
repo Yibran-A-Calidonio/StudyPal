@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Leaderboard from './Leaderboard';
 import './Dashboard.css';
 
-const Dashboard = ({ onLogout, user }) => {
+const Dashboard = ({ onLogout, user, connection }) => { // ✅ Receive connection as a prop
     const [showLeaderboard, setShowLeaderboard] = useState(false);
 
     const handleShowLeaderboard = () => {
@@ -20,7 +20,7 @@ const Dashboard = ({ onLogout, user }) => {
                     Logout
                 </button>
             </div>
-            {showLeaderboard && <Leaderboard />}
+            {showLeaderboard && <Leaderboard connection={connection} />} {/* ✅ Pass connection */}
         </div>
     );
 };
