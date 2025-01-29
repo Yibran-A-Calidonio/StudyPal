@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "E:\\studypalcsharp\\studypal\\studypalapi\\StudyPalAPI.csproj": {}
+    "E:\\StudyPalCSharp\\StudyPal\\StudyPalAPI\\StudyPalAPI.csproj": {}
   },
   "projects": {
-    "E:\\studypalcsharp\\studypal\\studypalapi\\StudyPalAPI.csproj": {
+    "E:\\StudyPalCSharp\\StudyPal\\StudyPalAPI\\StudyPalAPI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\studypalcsharp\\studypal\\studypalapi\\StudyPalAPI.csproj",
+        "projectUniqueName": "E:\\StudyPalCSharp\\StudyPal\\StudyPalAPI\\StudyPalAPI.csproj",
         "projectName": "StudyPalAPI",
-        "projectPath": "E:\\studypalcsharp\\studypal\\studypalapi\\StudyPalAPI.csproj",
+        "projectPath": "E:\\StudyPalCSharp\\StudyPal\\StudyPalAPI\\StudyPalAPI.csproj",
         "packagesPath": "C:\\Users\\barol\\.nuget\\packages\\",
-        "outputPath": "E:\\studypalcsharp\\studypal\\studypalapi\\obj\\",
+        "outputPath": "E:\\StudyPalCSharp\\StudyPal\\StudyPalAPI\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.SignalR;
 using StudyPalAPI.Data;
 using StudyPalAPI.Models;
 using StudyPalAPI.Models.DTOs;
 using StudyPalAPI.Services;
+using StudyPalAPI.Hubs;
+using System.Threading.Tasks;
 
 namespace StudyPalAPI.Controllers
 {
@@ -13,11 +16,12 @@ namespace StudyPalAPI.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly LeaderboardService _leaderboardService;
-
-        public StudyBuddyController(ApplicationDbContext context, LeaderboardService leaderboardService)
+        private readonly IHubContext<LeaderboardHub> _leaderboardHubContext;
+        public StudyBuddyController(ApplicationDbContext context, LeaderboardService leaderboardService, IHubContext<LeaderboardHub> leaderboardHubContext)
         {
             _context = context;
             _leaderboardService = leaderboardService; // Inject LeaderboardService
+            _leaderboardHubContext = leaderboardHubContext;
         }
 
         [HttpPost("log-session")]
@@ -43,11 +47,23 @@ namespace StudyPalAPI.Controllers
             return Ok("Session logged successfully.");
         }
 
-        [HttpGet("leaderboard")]
-        public IActionResult GetLeaderboard()
+        [HttpPost("start-session/{userId}")]
+        public async Task<IActionResult> StartSession(int userId)
         {
-            var leaderboard = _leaderboardService.GetLeaderboard(); // Fetch real-time leaderboard
-            return Ok(leaderboard);
+            _leaderboardService.StartSession(userId);
+            await _leaderboardService.BroadcastLeaderboard(); // ✅ Use BroadcastLeaderboard()
+            return Ok(new { message = "Session started." });
         }
+
+        [HttpPost("end-session/{userId}")]
+        public async Task<IActionResult> EndSession(int userId)
+        {
+            _leaderboardService.EndSession(userId);
+            await _leaderboardService.BroadcastLeaderboard(); // ✅ Use BroadcastLeaderboard()
+            return Ok(new { message = "Session ended." });
+        }
+
+
+
     }
 }

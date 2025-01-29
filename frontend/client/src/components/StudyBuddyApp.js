@@ -7,7 +7,7 @@ import level4Image from '../assets/study-buddy/level4.png';
 import level5Image from '../assets/study-buddy/level5.png';
 import level6Image from '../assets/study-buddy/level6.png';
 
-const StudyBuddyApp = ({ user, onLogout }) => {
+const StudyBuddyApp = ({ user }) => {
     const [isActive, setIsActive] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
     const [studyTime, setStudyTime] = useState(0); // Current session time in seconds
@@ -18,7 +18,7 @@ const StudyBuddyApp = ({ user, onLogout }) => {
         if (isActive && !isPaused) {
             interval = setInterval(() => {
                 setStudyTime((prevTime) => prevTime + 1); // Increment session time by 1 second
-            }, 100); // Run every second
+            }, 1000); // Run every second
         } else {
             clearInterval(interval);
         }
@@ -32,7 +32,6 @@ const StudyBuddyApp = ({ user, onLogout }) => {
         if (isActive && !isPaused) {
             interval = setInterval(async () => {
                 try {
-                    // Send study session data to the backend
                     await api.post('/studybuddy/log-session', {
                         userId: user.id,
                         durationMinutes: 1, // Log 1 minute increment
@@ -49,35 +48,45 @@ const StudyBuddyApp = ({ user, onLogout }) => {
         return () => clearInterval(interval);
     }, [isActive, isPaused, user]);
 
+    // Handle Start Studying
+    const handleStart = async () => {
+        setIsActive(true);
+        setIsPaused(false);
+        try {
+            await api.post(`/studybuddy/start-session/${user.id}`);
+        } catch (error) {
+            console.error('Error starting session:', error);
+        }
+    };
+
+    // Handle Stop Studying
     const handleStop = async () => {
         setIsActive(false);
         setIsPaused(false);
 
         if (studyTime > 0) {
             try {
-                // Log the remaining session data to the backend
                 await api.post('/studybuddy/log-session', {
                     userId: user.id,
                     durationMinutes: Math.floor(studyTime / 60), // Convert seconds to minutes
                     sessionDate: new Date().toISOString(),
                 });
+
+                await api.post(`/studybuddy/end-session/${user.id}`);
             } catch (error) {
-                console.error('Error logging session:', error);
+                console.error('Error stopping session:', error);
             }
         }
 
         setStudyTime(0); // Reset study time
     };
 
-    const handleStart = () => {
-        setIsActive(true);
-        setIsPaused(false);
-    };
-
+    // Handle Pause
     const handlePause = () => {
         setIsPaused(true);
     };
 
+    // Handle Resume
     const handleResume = () => {
         setIsPaused(false);
     };

@@ -1,49 +1,52 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import * as signalR from '@microsoft/signalr';
-import api from '../api';
 import './Leaderboard.css';
 
 const Leaderboard = () => {
     const [leaderboard, setLeaderboard] = useState([]);
     const [error, setError] = useState('');
+    const connectionRef = useRef(null); // Use ref to persist connection across renders
 
     useEffect(() => {
-        // Load initial leaderboard data via API
-        const fetchLeaderboard = async () => {
-            try {
-                const response = await api.get('/studybuddy/leaderboard');
-                console.log("PPOOOPOPOPOPOPOLL");
-                setLeaderboard(response.data);
-                console.log(leaderboard);
-            } catch (err) {
-                console.error(err);
-                setError('Failed to load leaderboard. Please try again later.');
-            }
-        };
+        if (connectionRef.current) return; // ✅ Prevent multiple connections
 
-        fetchLeaderboard();
-
-        // Set up SignalR connection for real-time updates
         const connection = new signalR.HubConnectionBuilder()
-            .withUrl('http://localhost:5251/leaderboardHub') // Update with backend URL
+            .withUrl('http://localhost:5251/leaderboardHub', {
+                skipNegotiation: true,
+                transport: signalR.HttpTransportType.WebSockets
+            })
+            .withAutomaticReconnect([0, 2000, 5000, 10000]) // ✅ Reconnect after 2s, 5s, and 10s if needed
+            .configureLogging(signalR.LogLevel.Information)
             .build();
 
+        connectionRef.current = connection;
+
         connection.on('ReceiveLeaderboard', (data) => {
-            setLeaderboard(data); // Update leaderboard with real-time data
+            console.log("📩 Received Leaderboard Data:", data);
+            if (data && Array.isArray(data)) {
+                setLeaderboard(data);
+            } else {
+                console.log("⚠️ Empty or invalid leaderboard data received.");
+            }
         });
-        
-        connection
-            .start()
+
+        connection.start()
+            .then(() => {
+                console.log("✅ Connected to SignalR Hub");
+            })
             .catch((err) => {
-                console.error('Error connecting to SignalR:', err);
+                console.error('❌ Error connecting to SignalR:', err);
                 setError('Failed to connect to real-time updates.');
             });
 
-        // Clean up SignalR connection
         return () => {
-            connection.stop();
+            if (connectionRef.current) {
+                console.log("🛑 Stopping SignalR connection...");
+                connectionRef.current.stop();
+                connectionRef.current = null;
+            }
         };
-    }, []);
+    }, []); // ✅ Empty dependency array ensures effect runs once
 
     return (
         <div className="leaderboard-container">
@@ -69,6 +72,7 @@ const Leaderboard = () => {
                     </tbody>
                 </table>
             )}
+            {!error && leaderboard.length === 0 && <p>No active study sessions.</p>}
         </div>
     );
 };

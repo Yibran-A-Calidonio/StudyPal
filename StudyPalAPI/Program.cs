@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using StudyPalAPI.Data;
 using StudyPalAPI.Services;
+using StudyPalAPI.Hubs;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -8,7 +10,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
-builder.Services.AddSingleton<LeaderboardService>(); // Add LeaderboardService as a singleton
+builder.Services.AddSingleton<LeaderboardService>(); // ✅ Make Singleton
 
 // Add DbContext with the connection string
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -20,8 +22,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowReactApp", policy =>
     {
         policy.WithOrigins("http://localhost:3000") // Allow React app's origin
-              .AllowAnyHeader() // Allow any headers (e.g., Content-Type, Authorization)
-              .AllowAnyMethod() // Allow any HTTP methods (GET, POST, PUT, DELETE)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
               .AllowCredentials();
     });
 });
@@ -36,13 +38,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Use CORS policy
 app.UseCors("AllowReactApp");
+app.MapHub<LeaderboardHub>("/leaderboardHub");
 
-app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
-app.MapHub<StudyPalAPI.Hubs.LeaderboardHub>("/leaderboardHub"); // Map the SignalR hub
-
 
 app.Run();
