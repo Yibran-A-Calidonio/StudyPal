@@ -1,28 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import './Leaderboard.css';
 
-const Leaderboard = ({ connection }) => {
-    const [leaderboard, setLeaderboard] = useState([]);
-    const [error, setError] = useState('');
-
+const Leaderboard = ({ connection, leaderboard, setLeaderboard }) => {
     useEffect(() => {
         if (!connection) return; // ✅ Wait until connection is ready
 
         connection.on('ReceiveLeaderboard', (data) => {
             console.log("📩 Received Leaderboard Data:", data);
-            setLeaderboard(data);
+            setLeaderboard(data); // ✅ Update the state in Dashboard.js
         });
 
         return () => {
             connection.off('ReceiveLeaderboard'); // ✅ Prevent duplicate listeners
         };
-    }, [connection]);
+    }, [connection, setLeaderboard]);
 
     return (
         <div className="leaderboard-container">
             <h2>Current Study Leaderboard</h2>
-            {error && <p className="error-message">{error}</p>}
-            {!error && leaderboard.length > 0 ? (
+            {leaderboard.length > 0 ? (
                 <table className="leaderboard-table">
                     <thead>
                         <tr>

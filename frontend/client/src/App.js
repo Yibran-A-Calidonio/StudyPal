@@ -4,6 +4,7 @@ import Login from './components/Login';
 import Registration from './components/Registration';
 import StudyBuddyApp from './components/StudyBuddyApp';
 import Dashboard from './components/Dashboard';
+import api from './api';
 import './App.css'; // Import App-specific CSS
 
 function App() {
@@ -54,9 +55,22 @@ function App() {
         localStorage.setItem('user', JSON.stringify(userData));
     };
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
+        if (user) {
+            try {
+                await api.post(`/studybuddy/end-session/${user.id}`); // ✅ Use end-session instead of creating a new one
+            } catch (error) {
+                console.error('Error logging out:', error);
+            }
+        }
+    
         setUser(null);
         localStorage.removeItem('user');
+    
+        if (connection) {
+            console.log("🛑 Stopping SignalR connection...");
+            connection.stop();
+        }
     };
 
     return (

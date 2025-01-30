@@ -43,6 +43,7 @@ namespace StudyPalAPI.Hubs
             await base.OnConnectedAsync();
         }
 
+
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
             _activeConnections = Math.Max(0, _activeConnections - 1);

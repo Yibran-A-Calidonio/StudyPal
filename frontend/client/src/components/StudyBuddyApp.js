@@ -11,20 +11,21 @@ const StudyBuddyApp = ({ user }) => {
     const [isActive, setIsActive] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
     const [studyTime, setStudyTime] = useState(0); // Current session time in seconds
+    const [sessionStartTime, setSessionStartTime] = useState(null);
 
     // Timer logic
     useEffect(() => {
         let interval = null;
-        if (isActive && !isPaused) {
+        if (isActive && !isPaused && sessionStartTime) {
             interval = setInterval(() => {
-                setStudyTime((prevTime) => prevTime + 1); // Increment session time by 1 second
-            }, 1000); // Run every second
+                setStudyTime(Math.floor((Date.now() - sessionStartTime) / 100)); 
+            }, 100); // Update every second
         } else {
             clearInterval(interval);
         }
-
         return () => clearInterval(interval);
-    }, [isActive, isPaused]);
+    }, [isActive, isPaused, sessionStartTime]);
+    
 
     // Log study time every minute
     useEffect(() => {
@@ -40,7 +41,7 @@ const StudyBuddyApp = ({ user }) => {
                 } catch (error) {
                     console.error('Error logging study time:', error);
                 }
-            }, 60000); // Log every 1 minute
+            }, 6000); // Log every 6 seconds
         } else {
             clearInterval(interval);
         }
@@ -81,15 +82,26 @@ const StudyBuddyApp = ({ user }) => {
         setStudyTime(0); // Reset study time
     };
 
-    // Handle Pause
-    const handlePause = () => {
+    const handlePause = async () => {
         setIsPaused(true);
+        try {
+            await api.post(`/studybuddy/pause-session/${user.id}`);
+        } catch (error) {
+            console.error('Error pausing session:', error);
+        }
     };
 
     // Handle Resume
-    const handleResume = () => {
+    const handleResume = async () => {
         setIsPaused(false);
+        try {
+            // ✅ Send request to start session again (it will use previously logged time)
+            await api.post(`/studybuddy/start-session/${user.id}`);
+        } catch (error) {
+            console.error('Error resuming session:', error);
+        }
     };
+    
 
     // Calculate minutes and seconds for display
     const minutes = Math.floor(studyTime / 60);

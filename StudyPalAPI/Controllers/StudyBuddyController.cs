@@ -32,16 +32,25 @@ namespace StudyPalAPI.Controllers
                 return BadRequest("Invalid session data.");
             }
 
-            // Create a new StudySession entity
-            var session = new StudySession
-            {
-                UserId = dto.UserId,
-                DurationMinutes = dto.DurationMinutes,
-                SessionDate = dto.SessionDate
-            };
+            // Find an existing session for today, or create a new one
+            var session = await _context.StudySessions
+                .FirstOrDefaultAsync(s => s.UserId == dto.UserId && s.SessionDate.Date == dto.SessionDate.Date);
 
-            // Save the session to the database
-            _context.StudySessions.Add(session);
+            if (session != null)
+            {
+                session.DurationMinutes += dto.DurationMinutes; // ✅ Update total logged time
+            }
+            else
+            {
+                session = new StudySession
+                {
+                    UserId = dto.UserId,
+                    DurationMinutes = dto.DurationMinutes,
+                    SessionDate = dto.SessionDate
+                };
+                _context.StudySessions.Add(session);
+            }
+
             await _context.SaveChangesAsync();
 
             return Ok("Session logged successfully.");
@@ -54,7 +63,13 @@ namespace StudyPalAPI.Controllers
             await _leaderboardService.BroadcastLeaderboard(); // ✅ Use BroadcastLeaderboard()
             return Ok(new { message = "Session started." });
         }
-
+        [HttpPost("pause-session/{userId}")]
+        public async Task<IActionResult> PauseSession(int userId)
+        {
+            _leaderboardService.PauseSession(userId);
+            await _leaderboardHubContext.Clients.All.SendAsync("ReceiveLeaderboard", _leaderboardService.GetLeaderboard());
+            return Ok(new { message = "Session paused." });
+        }
         [HttpPost("end-session/{userId}")]
         public async Task<IActionResult> EndSession(int userId)
         {
@@ -62,6 +77,13 @@ namespace StudyPalAPI.Controllers
             await _leaderboardService.BroadcastLeaderboard(); // ✅ Use BroadcastLeaderboard()
             return Ok(new { message = "Session ended." });
         }
+        [HttpGet("get-study-time/{userId}")]
+        public IActionResult GetStudyTime(int userId)
+        {
+            double elapsedMinutes = _leaderboardService.GetUserStudyTime(userId);
+            return Ok(new { elapsedMinutes });
+        }
+
 
 
 
