@@ -83,6 +83,16 @@ namespace StudyPalAPI.Controllers
             double elapsedMinutes = _leaderboardService.GetUserStudyTime(userId);
             return Ok(new { elapsedMinutes });
         }
+        [HttpGet("random-quotes/{count}")]
+        public async Task<IActionResult> GetRandomQuotes(int count = 5)
+        {
+            var randomQuotes = await _context.Quotes
+                .OrderBy(q => Guid.NewGuid()) // Random order
+                .Take(count) // Get specified number of quotes
+                .ToListAsync();
+
+            return Ok(randomQuotes);
+        }
 
 
 

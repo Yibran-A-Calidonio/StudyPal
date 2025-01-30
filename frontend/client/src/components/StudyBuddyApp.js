@@ -11,21 +11,20 @@ const StudyBuddyApp = ({ user }) => {
     const [isActive, setIsActive] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
     const [studyTime, setStudyTime] = useState(0); // Current session time in seconds
-    const [sessionStartTime, setSessionStartTime] = useState(null);
 
     // Timer logic
     useEffect(() => {
         let interval = null;
-        if (isActive && !isPaused && sessionStartTime) {
+        if (isActive && !isPaused) {
             interval = setInterval(() => {
-                setStudyTime(Math.floor((Date.now() - sessionStartTime) / 100)); 
-            }, 100); // Update every second
+                setStudyTime((prevTime) => prevTime + 1); // Increment session time by 1 second
+            }, 100); // Run every milli second
         } else {
             clearInterval(interval);
         }
+
         return () => clearInterval(interval);
-    }, [isActive, isPaused, sessionStartTime]);
-    
+    }, [isActive, isPaused]);
 
     // Log study time every minute
     useEffect(() => {
@@ -48,7 +47,33 @@ const StudyBuddyApp = ({ user }) => {
 
         return () => clearInterval(interval);
     }, [isActive, isPaused, user]);
-
+    useEffect(() => {
+        const syncStudyTimeOnReturn = async () => {
+            if (!user?.id) return; // ✅ Avoid sending request if user is null
+    
+            try {
+                const response = await api.get(`/studybuddy/get-study-time/${user.id}`);
+                if (response.data.elapsedMinutes !== undefined) {
+                    setStudyTime(Math.floor(response.data.elapsedMinutes * 60)); // Convert to seconds
+                }
+            } catch (error) {
+                console.error("Error syncing study time:", error);
+            }
+        };
+    
+        const handleVisibilityChange = () => {
+            if (!document.hidden) {
+                console.log("🔄 User returned to page, syncing study time...");
+                syncStudyTimeOnReturn();
+            }
+        };
+    
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+        return () => {
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
+        };
+    }, [user]);
+    
     // Handle Start Studying
     const handleStart = async () => {
         setIsActive(true);
@@ -101,7 +126,6 @@ const StudyBuddyApp = ({ user }) => {
             console.error('Error resuming session:', error);
         }
     };
-    
 
     // Calculate minutes and seconds for display
     const minutes = Math.floor(studyTime / 60);

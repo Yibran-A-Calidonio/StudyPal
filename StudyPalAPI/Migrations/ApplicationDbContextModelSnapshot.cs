@@ -43,7 +43,7 @@ namespace StudyPalAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("StudySessions");
+                    b.ToTable("StudySessions", (string)null);
                 });
 
             modelBuilder.Entity("StudyPalAPI.Models.User", b =>
@@ -68,7 +68,7 @@ namespace StudyPalAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("StudyPalAPI.Models.StudySession", b =>
