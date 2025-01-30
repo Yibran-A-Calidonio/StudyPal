@@ -4,12 +4,14 @@ import Login from './components/Login';
 import Registration from './components/Registration';
 import StudyBuddyApp from './components/StudyBuddyApp';
 import Dashboard from './components/Dashboard';
+import AnalyticsPanel from './components/AnalyticsPanel';
 import api from './api';
 import './App.css'; // Import App-specific CSS
 
 function App() {
     const [user, setUser] = useState(null);
     const [connection, setConnection] = useState(null);
+    const [showAnalytics, setShowAnalytics] = useState(false);
 
     // Restore user data from localStorage on app load
     useEffect(() => {
@@ -18,6 +20,9 @@ function App() {
             setUser(JSON.parse(storedUser));
         }
     }, []);
+    const handleToggleAnalytics = () => {
+        setShowAnalytics(prev => !prev);
+    };
 
     // ✅ Initialize WebSocket connection only ONCE
     useEffect(() => {
@@ -74,19 +79,29 @@ function App() {
     };
 
     return (
-        <div className="App">
-            <h1 className="app-title">Study Pal</h1>
-            {!user ? (
-                <div className="auth-page">
-                    <Login onLoginSuccess={handleLoginSuccess} />
-                    <Registration />
-                </div>
-            ) : (
-                <div>
-                    <Dashboard user={user} onLogout={handleLogout} connection={connection} /> 
-                    <StudyBuddyApp user={user} />
-                </div>
+        <div className="Background">
+            {user && (
+                <button className="analytics-btn" onClick={handleToggleAnalytics}>
+                    {showAnalytics ? 'Hide Analytics' : 'Show Analytics'}
+                </button>
             )}
+            <div className="App">
+                <h1 className="app-title">Study Pal</h1>
+                {!user ? (
+                    <div className="auth-page">
+                        <Login onLoginSuccess={handleLoginSuccess} />
+                        <Registration />
+                    </div>
+                ) : (
+                    <div>
+                        <Dashboard user={user} onLogout={handleLogout} connection={connection} /> 
+                        <StudyBuddyApp user={user} />
+                    </div>
+                )}
+            </div>
+            <div>
+                {showAnalytics && <AnalyticsPanel user={user} onClose={handleToggleAnalytics} />}
+            </div>
         </div>
     );
 }
