@@ -30,10 +30,15 @@ const GraphPanel = ({ user }) => {
         fetchStudyData();
     }, [user]);
 
-    const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-    const todayIndex = new Date().getDay() - 1; // Get current day (0=Sunday, adjust to start at Monday)
+    // Log studyData after state updates
+    useEffect(() => {
+        console.log("Updated studyData:", studyData);
+    }, [studyData]);
 
-    // Ensure we have 7 values, fill missing days with 0
+    const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    const todayIndex = (new Date().getDay() + 6) % 7; // Fix Sunday shift
+
+    // Ensure 7 values, fill missing days with 0
     const studyTimeData = Array(7).fill(0);
     studyData.forEach((entry) => {
         const index = daysOfWeek.indexOf(entry.day);

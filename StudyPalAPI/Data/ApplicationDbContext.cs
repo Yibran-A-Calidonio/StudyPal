@@ -15,6 +15,8 @@ namespace StudyPalAPI.Data
         public DbSet<StudySession> StudySessions { get; set; }
         public DbSet<Quote> Quotes { get; set; }
 
+        public DbSet<StudyGoal> StudyGoals { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

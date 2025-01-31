@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import './StudyBuddyApp.css';
-import { useRef } from 'react';
 import api from '../api'; // Axios instance for HTTP requests
 import level1Image from '../assets/study-buddy/level1.png';
 import level2Image from '../assets/study-buddy/level2.png';
@@ -16,7 +15,7 @@ const StudyBuddyApp = ({ user }) => {
     const [quotes, setQuotes] = useState([]); // Store quotes
     const [currentQuote, setCurrentQuote] = useState(null); // Store current quote
     const [showQuote, setShowQuote] = useState(false); // Toggle quote visibility
-    const quoteTimeout = useRef(null);
+    
 
     // Timer logic
     useEffect(() => {
@@ -60,12 +59,6 @@ const StudyBuddyApp = ({ user }) => {
         }, 50); // Short delay to restart animation
     };
     
-    
-
-    // Show a random new quote
-    const handleNextQuote = () => {
-        setCurrentQuote(getRandomQuote());
-    };
 
     // Log study time every minute
     useEffect(() => {

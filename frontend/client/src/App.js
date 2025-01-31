@@ -5,6 +5,7 @@ import Registration from './components/Registration';
 import StudyBuddyApp from './components/StudyBuddyApp';
 import Dashboard from './components/Dashboard';
 import AnalyticsPanel from './components/AnalyticsPanel';
+import GraphPanel from "./components/GraphPanel";
 import api from './api';
 import './App.css'; // Import App-specific CSS
 
@@ -100,7 +101,12 @@ function App() {
                 )}
             </div>
             <div>
-                {showAnalytics && <AnalyticsPanel user={user} onClose={handleToggleAnalytics} />}
+            {showAnalytics && (
+                <div className="AnalyticsContainer">
+                    <AnalyticsPanel user={user} onClose={handleToggleAnalytics} />
+                    <GraphPanel user={user} />
+                </div>
+            )}
             </div>
         </div>
     );

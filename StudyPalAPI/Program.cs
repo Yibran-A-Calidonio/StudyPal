@@ -27,6 +27,7 @@ builder.Services.AddCors(options =>
               .AllowCredentials();
     });
 });
+builder.Services.AddHostedService<ResetCheckedInService>();
 
 var app = builder.Build();
 
