@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("StudyPalAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d937a13d8f0ac1282722d2ff1818b437d05487f0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+024a2fd87d8a11111dbb3a41c1f277c35dc821ed")]
 [assembly: System.Reflection.AssemblyProductAttribute("StudyPalAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("StudyPalAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

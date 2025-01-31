@@ -6,8 +6,10 @@ import StudyBuddyApp from './components/StudyBuddyApp';
 import Dashboard from './components/Dashboard';
 import AnalyticsPanel from './components/AnalyticsPanel';
 import GraphPanel from "./components/GraphPanel";
+import GoalsList from './components/GoalsList';
 import api from './api';
 import './App.css'; // Import App-specific CSS
+
 
 function App() {
     const [user, setUser] = useState(null);
@@ -86,6 +88,9 @@ function App() {
                     {showAnalytics ? 'Hide Analytics' : 'Show Analytics'}
                 </button>
             )}
+            <div className="AnalyticsContainer">
+                <GoalsList user={user} />
+            </div>
             <div className="App">
                 <h1 className="app-title">Study Pal</h1>
                 {!user ? (

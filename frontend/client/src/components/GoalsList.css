@@ -1,0 +1,44 @@
+.GoalsList {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: white;
+    max-width: 300px;
+}
+
+.goal-input {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.goal-input input {
+    flex: 1;
+    padding: 5px;
+}
+
+.goal-list {
+    list-style: none;
+    padding: 0;
+}
+
+.goal-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+}
+
+.goal-item button {
+    
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+.goal-item button:hover {
+    background: gray;
+    color: white;
+    border: none;
+    cursor: pointer;
+}

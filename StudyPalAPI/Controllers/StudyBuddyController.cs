@@ -143,6 +143,31 @@ namespace StudyPalAPI.Controllers
                 streak = user.Streak
             });
         }
+
+        [HttpGet("study-summary/{userId}")]
+        public async Task<IActionResult> GetStudySummary(int userId)
+        {
+            var today = DateTime.UtcNow.Date;
+            var pastWeek = today.AddDays(-6);
+
+            // Step 1: Fetch raw study sessions first (avoiding EF Core translation issues)
+            var studySessions = await _context.StudySessions
+                .Where(s => s.UserId == userId && s.SessionDate >= pastWeek)
+                .ToListAsync(); // ✅ Fetch first
+
+            // Step 2: Perform grouping & transformation in memory
+            var studyData = studySessions
+                .GroupBy(s => s.SessionDate.Date) // ✅ Group by date (works in-memory)
+                .Select(g => new
+                {
+                    Day = g.Key.DayOfWeek.ToString(), // ✅ Convert to weekday name
+                    StudyTime = g.Sum(s => s.DurationMinutes) // ✅ Sum up study time
+                })
+                .OrderBy(x => x.Day) // ✅ Ensure chronological order
+                .ToList();
+
+            return Ok(studyData);
+        }
         [HttpGet("study-goals/{userId}")]
         public async Task<IActionResult> GetStudyGoals(int userId)
         {
