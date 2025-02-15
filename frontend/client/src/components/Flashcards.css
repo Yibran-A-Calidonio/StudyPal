@@ -1,0 +1,100 @@
+.flashcards-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    
+  }
+  
+  h2 {
+    font-size: 24px;
+    font-weight: bold;
+  }
+  
+  .flashcard {
+    width: 300px;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f3f3f3;
+    border-radius: 10px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.6s ease-in-out;
+    transform-style: preserve-3d;
+    position: relative;
+   
+  }
+  
+  .flashcard.flipped {
+    transform: rotateY(180deg);
+  }
+  
+  /* Tilting effect */
+  .flashcard.tilt-right {
+    transform: rotateY(10deg) rotateZ(-30deg);
+  }
+  
+  .flashcard.tilt-left {
+    transform: rotateY(-10deg) rotateZ(30deg);
+  }
+  
+  .flashcard-content {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backface-visibility: hidden;
+    font-size: 18px;
+    text-align: center;
+    padding: 10px;
+    border: 2px dotted black;
+    background-image: url('../assets/stripes.jpg');
+  }
+  
+  .flashcard .front {
+    background-color: #f3f3f3;
+    border-radius: 10px;
+  }
+  
+  .flashcard .back {
+    background-color: #e0f7fa;
+    border-radius: 10px;
+    transform: rotateY(180deg);
+    position: absolute;
+  }
+  
+  .flashcard textarea {
+    width: 90%;
+    height: 70%;
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    text-align: center;
+    resize: none;
+    outline: none;
+  }
+  
+  .flashcard-buttons {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .flashcard-buttons button {
+    padding: 8px 12px;
+    font-size: 14px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  
+  .flashcard-buttons button:hover {
+    background-color: #0056b3;
+  }
+  

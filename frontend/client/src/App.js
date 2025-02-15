@@ -7,6 +7,7 @@ import Dashboard from './components/Dashboard';
 import AnalyticsPanel from './components/AnalyticsPanel';
 import GraphPanel from "./components/GraphPanel";
 import GoalsList from './components/GoalsList';
+import Flashcards from './components/Flashcards';
 import api from './api';
 import './App.css'; // Import App-specific CSS
 
@@ -80,16 +81,21 @@ function App() {
             connection.stop();
         }
     };
-
+    const sampleCards = [
+        { question: "What is 2 + 2?", answer: "4" },
+        { question: "What is the capital of France?", answer: "Paris" },
+        { question: "What does CPU stand for?", answer: "Central Processing Unit" },
+      ];
     return (
         <div className="Background">
             {user && (
                 <button className="analytics-btn" onClick={handleToggleAnalytics}>
-                    {showAnalytics ? 'Hide Analytics' : 'Show Analytics'}
+                    {!showAnalytics ? 'Hide Analytics' : 'Show Analytics'}
                 </button>
             )}
             <div className="AnalyticsContainer">
                 <GoalsList user={user} />
+                <Flashcards cards={sampleCards} />
             </div>
             <div className="App">
                 <h1 className="app-title">Study Pal</h1>
@@ -106,7 +112,7 @@ function App() {
                 )}
             </div>
             <div>
-            {showAnalytics && (
+            {!showAnalytics && (
                 <div className="AnalyticsContainer">
                     <AnalyticsPanel user={user} onClose={handleToggleAnalytics} />
                     <GraphPanel user={user} />
