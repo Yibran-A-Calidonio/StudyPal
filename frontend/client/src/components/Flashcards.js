@@ -48,7 +48,7 @@ const Flashcards = () => {
         <div className={`flashcard ${isFlipped ? "flipped" : ""} ${tilt}`}>
           {!isFlipped ? (
             <div className="flashcard-content front">
-              
+            <h3 className="flashcard-label">Question</h3>
               <textarea
                 placeholder="Enter question..."
                 value={flashcards[currentIndex].question}
@@ -57,7 +57,7 @@ const Flashcards = () => {
             </div>
           ) : (
             <div className="flashcard-content back">
-              
+              <h3 className="flashcard-label">Answer</h3>
               <textarea
                 placeholder="Enter answer..."
                 value={flashcards[currentIndex].answer}
