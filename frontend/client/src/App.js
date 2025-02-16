@@ -98,7 +98,7 @@ function App() {
                 <Flashcards cards={sampleCards} />
             </div>
             <div className="App">
-                <h1 className="app-title">Study Pal</h1>
+                
                 {!user ? (
                     <div className="auth-page">
                         <Login onLoginSuccess={handleLoginSuccess} />

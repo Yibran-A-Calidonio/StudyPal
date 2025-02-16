@@ -179,7 +179,7 @@ const StudyBuddyApp = ({ user }) => {
 
     return (
         <div>
-            <h1>Study Buddy</h1>
+            <h1>Study Pal</h1>
 
             {/* Progress Bar */}
             <div style={{ width: '100%', height: '20px', backgroundColor: '#e0e0e0', marginBottom: '20px' }}>

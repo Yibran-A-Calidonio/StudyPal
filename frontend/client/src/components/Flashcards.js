@@ -1,32 +1,39 @@
 import { useState } from "react";
-import "./Flashcards.css"; // Import CSS for notebook styling
+import "./Flashcards.css"; // Import CSS for styling
 
 const Flashcards = () => {
   const [flashcards, setFlashcards] = useState([
-    { question: "", answer: "" }, // Start with one blank flashcard
+    { question: "What is 2+2?", answer: "4" },
+    { question: "Capital of France?", answer: "Paris" },
+    { question: "What does CPU stand for?", answer: "Central Processing Unit" },
   ]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
-  const [tilt, setTilt] = useState(""); // State to manage tilt direction
+  const [isAnimating, setIsAnimating] = useState(false); // Prevents spam clicks
+
+  const nextIndex = (currentIndex + 1) % flashcards.length;
+  const prevIndex = currentIndex === 0 ? flashcards.length - 1 : currentIndex - 1;
 
   const handleNext = () => {
-    setTilt("tilt-right");
+    if (isAnimating) return;
+    setIsAnimating(true);
+    
     setTimeout(() => {
       setIsFlipped(false);
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % flashcards.length);
-      setTilt(""); // Reset tilt after switching
-    }, 300);
+      setCurrentIndex(nextIndex);
+      setIsAnimating(false);
+    }, 400);
   };
 
   const handlePrev = () => {
-    setTilt("tilt-left");
+    if (isAnimating) return;
+    setIsAnimating(true);
+
     setTimeout(() => {
       setIsFlipped(false);
-      setCurrentIndex((prevIndex) =>
-        prevIndex === 0 ? flashcards.length - 1 : prevIndex - 1
-      );
-      setTilt(""); // Reset tilt after switching
-    }, 300);
+      setCurrentIndex(prevIndex);
+      setIsAnimating(false);
+    }, 400);
   };
 
   const handleChange = (e, field) => {
@@ -37,18 +44,29 @@ const Flashcards = () => {
 
   const handleAddFlashcard = () => {
     setFlashcards([...flashcards, { question: "", answer: "" }]);
-    setCurrentIndex(flashcards.length); // Move to the new card
+    setCurrentIndex(flashcards.length);
   };
 
   return (
     <div className="flashcards-container">
       <h2>Flashcards</h2>
 
-      <div id="notebook-paper">
-        <div className={`flashcard ${isFlipped ? "flipped" : ""} ${tilt}`}>
+      <div className="flashcard-stack">
+        {/* Back card (Next card data) */}
+        {flashcards.length > 1 && (
+          <div className={`flashcard back-card ${isAnimating ? "incoming" : ""}`}>
+            <div className="flashcard-content">
+              <h3 className="flashcard-label">Next: {isFlipped ? "Answer" : "Question"}</h3>
+              <p>{isFlipped ? flashcards[nextIndex].answer : flashcards[nextIndex].question}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Front card (Active Card) */}
+        <div className={`flashcard front-card ${isAnimating ? "disappearing" : ""}`}>
           {!isFlipped ? (
             <div className="flashcard-content front">
-            <h3 className="flashcard-label">Question</h3>
+              <h3 className="flashcard-label">Question</h3>
               <textarea
                 placeholder="Enter question..."
                 value={flashcards[currentIndex].question}
